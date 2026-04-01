@@ -6,6 +6,11 @@
 #include <stdio.h>
 #include "md5_utils.h" 
 
+unsigned char AA[4] = {0x01, 0x23, 0x45, 0x67};
+unsigned char BB[4] = {0x89, 0xab, 0xcd, 0xef};
+unsigned char CC[4] = {0xfe, 0xdc, 0xab, 0x98};
+unsigned char DD[4] = {0x76, 0x54, 0x32, 0x01};
+
 size_t calculate_padded_msg_length(size_t original_len) {
     size_t min_total_length = original_len + 1 + 8; 
     size_t final_total_length = 0;
@@ -29,10 +34,6 @@ unsigned char* md5_pad_msg(const unsigned char* msg, size_t original_len, size_t
 
     padded_msg[original_len] = 0x80; // sets the final bit after msg to 1
 
-    //uint64_t bit_len = (uint64_t) original_len * 8; // how many bits do i need do get original msg? 
-    
-    //memcpy(padded_msg + (*final_len - 8), &bit_len, 8); // copy the bit length of original msg to the end of padded_msg
-    
     return padded_msg;
 }
 
@@ -49,11 +50,9 @@ void md5_append_length(unsigned char* padded_msg, size_t original_len, size_t* t
     padded_msg_end_ptr[6] = (unsigned char)((len_64_bit >> 48) & 0xFF);
     padded_msg_end_ptr[7] = (unsigned char)((len_64_bit >> 56) & 0xFF);
 
-    printf("Appended bytes (Hex): \n");
-    for(int i = 0; i < 8; i++) {
-        printf("%02x ", padded_msg_end_ptr[i]);
-    }
-    printf("\n");
-
-    //return padded_msg_end_ptr;
 }
+
+unsigned char* F_function(const unsigned char* x, const unsigned char* y, const unsigned char* z) {return NULL;}
+unsigned char* G_function(const unsigned char* x, const unsigned char* y, const unsigned char* z) {return NULL;}
+unsigned char* H_function(const unsigned char* x, const unsigned char* y, const unsigned char* z) {return NULL;}
+unsigned char* I_function(const unsigned char* x, const unsigned char* y, const unsigned char* z) {return NULL;}
