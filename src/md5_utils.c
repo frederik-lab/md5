@@ -12,12 +12,8 @@ size_t calculate_padded_msg_length(size_t original_len) {
         return 0; // ERROR
     } 
 
-    if (min_total_length <= 64) {
-        final_total_length = 64;
-    } else {
-        final_total_length = ((min_total_length + 63) / 64) * 64;
-    }
-
+    final_total_length = ((min_total_length + 63) / 64) * 64;
+    
     return final_total_length;
 }
 
