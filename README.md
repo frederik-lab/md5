@@ -1,4 +1,6 @@
 # md5 implementation project in C
+look in makefile to  build
+
 
 ## md5 algorithm step by step
 
