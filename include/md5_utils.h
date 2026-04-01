@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+void print_buffer_hex(const unsigned char* buffer, size_t len);
 
 size_t calculate_padded_msg_length(size_t original_len);
 
@@ -16,9 +17,13 @@ uint32_t G_function(uint32_t x, uint32_t y, uint32_t z);
 uint32_t H_function(uint32_t x, uint32_t y, uint32_t z);
 uint32_t I_function(uint32_t x, uint32_t y, uint32_t z);
 
-void round1(unsigned char *X, uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i);
-void round2(unsigned char *X, uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i);
-void round3(unsigned char *X, uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i);
-void round4(unsigned char *X, uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i);
+void round1(uint32_t *X, const uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i);
+void round2(uint32_t *X, const uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i);
+void round3(uint32_t *X, const uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i);
+void round4(uint32_t *X, const uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i);
+
+void md5_process_msg_blocks(const unsigned char* padded_msg, uint32_t* block_arr , const size_t msg_len);
+
+void md5_print_digest(uint32_t* result_blocks);
 
 #endif

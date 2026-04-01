@@ -9,10 +9,22 @@
 #include "md5_constants.h"
 
 #define R1(a, b, c, d, k, s, i) round1(X, T, &a, b, c, d, k, s, i-1)
-#define R2(a, b, c, d, k, s, i) round1(X, T, &a, b, c, d, k, s, i-1)
-#define R3(a, b, c, d, k, s, i) round1(X, T, &a, b, c, d, k, s, i-1)
-#define R4(a, b, c, d, k, s, i) round1(X, T, &a, b, c, d, k, s, i-1)
+#define R2(a, b, c, d, k, s, i) round2(X, T, &a, b, c, d, k, s, i-1)
+#define R3(a, b, c, d, k, s, i) round3(X, T, &a, b, c, d, k, s, i-1)
+#define R4(a, b, c, d, k, s, i) round4(X, T, &a, b, c, d, k, s, i-1)
 
+uint32_t left_rotate(uint32_t x, uint32_t s) {
+    return (x << s) | (x >> (32 - s));
+}
+
+void print_buffer_hex(const unsigned char* buffer, size_t len) {
+    for (size_t i = 0; i < len; i++) {
+        printf("%02x ", buffer[i]);
+        // Add a newline every 16 bytes for readability
+        if ((i + 1) % 16 == 0) printf("\n");
+    }
+    printf("\n");
+}
 
 size_t calculate_padded_msg_length(const size_t original_len) {
     size_t min_total_length = original_len + 1 + 8; 
@@ -58,7 +70,7 @@ uint32_t F_function(const uint32_t x, const uint32_t y, const uint32_t z) {
 }
 
 uint32_t G_function(const uint32_t x, const uint32_t y, const uint32_t z) {
-    return ((x & z) | (y & (~x)));
+    return ((x & z) | (y & (~z)));
 }
 
 uint32_t H_function(const uint32_t x, const uint32_t y, const uint32_t z) {
@@ -69,32 +81,36 @@ uint32_t I_function(const uint32_t x, const uint32_t y, const uint32_t z) {
     return (y ^ (x | (~z)));
 }
 
-void round1(unsigned char *X, uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i) {
-    *a = b + ((*a + F_function(b,c,d) + X[k] + T[i]) << s);
+void round1(uint32_t *X, const uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i) {
+    *a = b + left_rotate((*a + F_function(b,c,d) + X[k] + T[i]), s);
 }
 
-void round2(unsigned char *X, uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i) {
-    *a = b + ((*a + G_function(b,c,d) + X[k] + T[i]) << s);
+void round2(uint32_t *X, const uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i) {
+    *a = b + left_rotate((*a + G_function(b,c,d) + X[k] + T[i]), s);
 }
 
-void round3(unsigned char *X, uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i) {
-    *a = b + ((*a + H_function(b,c,d) + X[k] + T[i]) << s);
+void round3(uint32_t *X, const uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i) {
+    *a = b + left_rotate((*a + H_function(b,c,d) + X[k] + T[i]), s);
 }
 
-void round4(unsigned char *X, uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i){
-    *a = b + ((*a + I_function(b,c,d) + X[k] + T[i]) << s);
+void round4(uint32_t *X, const uint32_t* T, uint32_t* a, uint32_t b, uint32_t c, uint32_t d, int k, int s, int i){
+    *a = b + left_rotate((*a + I_function(b,c,d) + X[k] + T[i]), s);
 }
 
-uint32_t* process_msg_blocks(const unsigned char* padded_msg, const size_t msg_len) {
+void md5_process_msg_blocks(const unsigned char* padded_msg, uint32_t* block_arr , const size_t msg_len) {
     uint32_t A = INITIAL_A;
     uint32_t B = INITIAL_B;
     uint32_t C = INITIAL_C;
     uint32_t D = INITIAL_D;
     
-    for(uint32_t i=0; i<=((msg_len / 16)-1); i++) {
-        uint32_t X[16] = 0x00;
+    for(uint32_t i=0; i<=((msg_len / 64)-1); i++) {
+        
+        uint32_t X[16] = {0};
         for(uint32_t j=0; j<=15; j++) {
-            X[j] = padded_msg[i*16+j]; // copy ith block into X
+            X[j] = ((uint32_t)padded_msg[i*64 + j*4 + 0]) |
+                    ((uint32_t)padded_msg[i*64 + j*4 + 1] << 8) |
+                    ((uint32_t)padded_msg[i*64 + j*4 + 2] << 16)  |
+                    (uint32_t)padded_msg[i*64 + j*4 + 3] << 24;
         }
         uint32_t AA = A;
         uint32_t BB = B;
@@ -123,7 +139,7 @@ uint32_t* process_msg_blocks(const unsigned char* padded_msg, const size_t msg_l
         R1(B, C, D, A, 15, 22, 16);
 
         // round2 
-        R2(A, B, C, D, 1, 4, 17);
+        R2(A, B, C, D, 1, 5, 17);
         R2(D, A, B, C, 6, 9, 18);
         R2(C, D, A, B, 11, 14, 19);
         R2(B, C, D, A, 0, 20, 20);
@@ -190,4 +206,19 @@ uint32_t* process_msg_blocks(const unsigned char* padded_msg, const size_t msg_l
         C = C + CC;
         D = D + DD;
     }
+    
+    block_arr[0] = A;
+    block_arr[1] = B;
+    block_arr[2] = C;
+    block_arr[3] = D;
+}
+
+void md5_print_digest(uint32_t* result_blocks) {
+    for (int i = 0; i < 4; i++) {
+        printf("%02x", (result_blocks[i])       & 0xFF);
+        printf("%02x", (result_blocks[i] >> 8)  & 0xFF);
+        printf("%02x", (result_blocks[i] >> 16) & 0xFF);
+        printf("%02x", (result_blocks[i] >> 24) & 0xFF);
+    }
+    printf("\n");
 }

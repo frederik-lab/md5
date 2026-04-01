@@ -54,13 +54,14 @@ void test_md5_append_length(void) {
     free(input_for_append);
 }
 
+/*
 void test_rounds(void) {
     TEST_ASSERT_EQUAL_INT(round1());
     TEST_ASSERT_EQUAL_INT(round1());
     TEST_ASSERT_EQUAL_INT(round1());
     TEST_ASSERT_EQUAL_INT(round1());
 }
-
+*/
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_calculate_padded_msg_length);
