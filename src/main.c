@@ -29,17 +29,14 @@ int main() {
     
     printf("padded length: %zu\n", padded_msg_length);
     print_buffer_hex(padded_msg, padded_msg_length);
-    // ############################################# 
-
 
     // ############################################# appending len to msg
     print_buffer_hex(msg, original_msg_length);
+
     md5_append_length(padded_msg, original_msg_length, &padded_msg_length);
 
     print_buffer_hex(padded_msg, padded_msg_length);
-    //print_buffer_hex(msg_with_len, padded_msg_length);
-    //print_buffer_hex(padded_msg, padded_msg_length);
-    // ############################################# 
+
 
 
     free(padded_msg);
