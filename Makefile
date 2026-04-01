@@ -1,7 +1,7 @@
 # Compiler settings
 CC = gcc
 # Point to the include directory for headers
-CFLAGS = -Iinclude -Itest/unity -Wall -Wextra
+CFLAGS = -O2 -Iinclude -Itest/unity -Wall -Wextra
 BIN_DIR = bin
 
 # Default target: builds everything (tests and app)
