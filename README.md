@@ -10,6 +10,12 @@ padding is done by appending a 1 to b and then appending 0s until the padded mes
 ### step 2, :
 
 
+### step 3 :
+
+
+### step 4 :
+
+
 
 # scripts
 ## precalc script: 
